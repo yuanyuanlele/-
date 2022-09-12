@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>ZJ招聘后台管理系统 - HR信息</title>
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/ss/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <!-- jqgrid-->
+    <link href="/css/plugins/jqgrid/ui.jqgrid.css?0820" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css?v=4.1.0" rel="stylesheet">
+
+    <style>
+        /* Additional style to fix warning dialog position */
+
+        #alertmod_table_list_2 {
+            top: 900px !important;
+        }
+    </style>
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h4>HR个人信息表</h4>
+                        <button id="addBtn" class="btn btn-info" href="">添加</button>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="jqGrid_wrapper">
+                            <table id="table_list_2"></table>
+                            <div id="pager_list_2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        添加HR
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="addForm">
+                        <input type="hidden" id="id" name="sid"/>
+                        <div class="form-group">
+                            <label for="hrMobile">手机号</label>
+                            <input type="text" name="hrMobile" id="hrMobile" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="hrPassword">密码</label>
+                            <input type="text" name="hrPassword" id="hrPassword" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="hrName">姓名</label>
+                            <input type="text" name="hrName" id="hrName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="hrEmail">邮箱</label>
+                            <input type="text" name="hrEmail" id="hrEmail" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>描述</label>
+                            <textarea class="form-control" id="description" name="description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyId">公司</label>
+                            <select name="companyId" id="companyId" class="form-control"></select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addHr()">
+                        提交更改
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- 全局js -->
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+
+
+
+    <!-- Peity -->
+    <script src="/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- jqGrid -->
+    <script src="/js/plugins/jqgrid/i18n/grid.locale-cn.js?0820"></script>
+    <script src="/js/plugins/jqgrid/jquery.jqGrid.min.js?0820"></script>
+
+    <!-- 自定义js -->
+    <script src="/js/content.js?v=1.0.0"></script>
+
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+            $.jgrid.defaults.styleUI = 'Bootstrap';
+
+            // Configuration for jqGrid Example 2
+            $("#table_list_2").jqGrid({
+                url:'getHr',
+                datatype: "json",
+                height: 800,
+                autowidth: true,
+                shrinkToFit: true,
+//                rowNum: 20,
+//                rowList: [10, 20, 30],
+//                multiselect:true,
+                colNames: ['HR Id', '姓名', '手机号', '邮箱', '描述', '部门','公司','操作'],
+                colModel: [
+                    {
+                        name: 'hrId',
+                        index: 'hrId',
+                        editable: false,
+                        width: 60,
+                        sorttype: "int",
+                        search: true
+                    },
+                    {
+                        name: 'hrName',
+                        index: 'hrName',
+                        editable: true,
+                        width: 60
+                    },
+                    {
+                        name: 'hrMobile',
+                        index: 'hrMobile',
+                        editable: true,
+                        width: 100,
+                        sortable: false
+                    },
+                    {
+                        name: 'hrEmail',
+                        index: 'hrEmail',
+                        editable: true,
+                        width: 100,
+                        sortable: false
+                    },
+                    {
+                        name: 'description',
+                        index: 'description',
+                        editable: true,
+                        width: 60,
+                        sortable: false
+                    },
+                    {
+                        name: 'departmentName',
+                        index: 'departmentName',
+                        editable: true,
+                        width: 60,
+                        sortable: false
+                    },
+                    {
+                        name: 'companyName',
+                        index: 'companyName',
+                        editable: true,
+                        width: 80,
+                        sortable: false
+                    },
+                    {
+                        name: 'hrId',
+                        index: 'hrId',
+                        editable: true,
+                        width: 60,
+                        sortable: false,
+                        formatter:function(cellvalue, options, rowObject){
+                            var str1="<a onclick='updateHr("+cellvalue+")'>编辑</a>";
+                            var str2="&nbsp;&nbsp;<a onclick='deleteHr("+cellvalue+")'>删除</a>";
+                            return str1+str2;
+                        }
+                    }
+                ],
+                pager: "#pager_list_2",
+                viewrecords: true,
+                caption: "HR管理",
+                hidegrid: false,
+                loadonce : true
+            });
+
+            // Add selection
+            $("#table_list_2").setSelection(4, true);
+
+
+            // Setup buttons
+            $("#table_list_2").jqGrid('navGrid', '#pager_list_2', {
+                edit: false,
+                add: false,
+                del: false,
+                search: true
+            }, {
+                height: 200,
+                reloadAfterSubmit: true
+            });
+
+            // Add responsive to jqGrid
+            $(window).bind('resize', function () {
+                var width = $('.jqGrid_wrapper').width();
+                $('#table_list_2').setGridWidth(width);
+            });
+
+            $("#addBtn").click(function () {
+                $("#hrName,#hrPassword,#description,#hrEmail,#hrMobile,#id").val("");
+
+                $.ajax({
+                    url:"getCompany",
+                    type:"post",
+                    contentType:"application/json",
+                    dataType:"json",
+                    success: function (data) {
+                        var html="";
+                        for(var i=0;i<data.length;i++){
+                            html+="<option value='"+data[i].companyId+"'>"+data[i].companyName+"</option>";
+                        }
+                        $("#companyId").html(html);
+                    }
+                })
+
+                $('#myModal').modal('show');
+            });
+        });
+
+        function addHr() {
+            $.ajax({
+                url:"addHr",
+                type:"post",
+                data:$("#addForm").serialize(),
+                success: function (data) {
+                    if(data=="true"){
+                        alert("添加成功");
+                        window.location.href="hr_list.html";
+                    }
+                }
+            })
+        }
+
+        function updateHr(id) {
+            $.ajax({
+                url:"getCompany",
+                type:"post",
+                contentType:"application/json",
+                dataType:"json",
+                success: function (data) {
+                    var html="";
+                    for(var i=0;i<data.length;i++){
+                        html+="<option value='"+data[i].companyId+"'>"+data[i].companyName+"</option>";
+                    }
+                    $("#companyId").html(html);
+                }
+            })
+
+            $.ajax({
+                url:"updateHr",
+                type:"post",
+                data:{"id":id},
+                dataType:"json",
+                success: function (data) {
+                    $("#id").val(data.hrId);
+                    $("#hrName").val(data.hrName);
+                    $("#hrPassword").val(data.hrPassword);
+                    $("#hrEmail").val(data.hrEmail);
+                    $("#description").val(data.description);
+                    $("#hrMobile").val(data.hrMobile);
+                    var companyId=data.companyId;
+                    $("#companyId option[value='"+companyId+"']").attr("selected", true);
+                }
+            })
+
+
+            $('#myModal').modal('show');
+        }
+
+        function deleteHr(id) {
+            $.ajax({
+                url:"deleteHr",
+                type:"post",
+                data:{"id":id},
+                success: function (data) {
+                    if(data=="true"){
+                        alert("删除成功");
+                        window.location.href="hr_list.html";
+                    }
+                }
+            })
+        }
+    </script>
+
+</body>
+
+</html>

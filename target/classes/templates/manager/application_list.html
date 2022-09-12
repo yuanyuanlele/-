@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>ZJ招聘后台管理系统 -应聘信息</title>
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/ss/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <!-- jqgrid-->
+    <link href="/css/plugins/jqgrid/ui.jqgrid.css?0820" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css?v=4.1.0" rel="stylesheet">
+
+    <style>
+        /* Additional style to fix warning dialog position */
+
+        #alertmod_table_list_2 {
+            top: 900px !important;
+        }
+    </style>
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h4>应聘信息管理</h4>
+                        <!--<button id="addBtn" class="btn btn-info" href="">发布招聘</button>-->
+                    </div>
+                    <div class="ibox-content">
+                        <div class="jqGrid_wrapper">
+                            <table id="table_list_2"></table>
+                            <div id="pager_list_2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        发布招聘信息
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="addForm">
+                        <input type="hidden" id="positionId" name="sid"/>
+                        <div class="form-group">
+                            <label for="title">标题</label>
+                            <input type="text" name="title" id="title" class="form-control" id="title">
+                        </div>
+                        <div class="form-group">
+                            <label>要求</label>
+                            <textarea class="form-control" id="requirement" name="requirement"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">人数</label>
+                            <input type="text" name="quantity" id="quantity" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="title">工作地点</label>
+                            <input type="text" name="workCity" id="workCity" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="title">最高薪资</label>
+                            <input type="text" name="salaryUp" id="salaryUp" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="title">最低薪资</label>
+                            <input type="text" name="salaryDown" id="salaryDown" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="title">分类</label>
+                            <select name="categoryId" id="categoryId" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">部门</label>
+                            <select name="departmentId" id="departmentId" class="form-control"></select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addPosition()">
+                        提交更改
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <input type="hidden" id="role" th:value="${session.role}"/>
+
+    <!-- 全局js -->
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+
+
+
+    <!-- Peity -->
+    <script src="/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- jqGrid -->
+    <script src="/js/plugins/jqgrid/i18n/grid.locale-cn.js?0820"></script>
+    <script src="/js/plugins/jqgrid/jquery.jqGrid.min.js?0820"></script>
+
+    <!-- 自定义js -->
+    <script src="/js/content.js?v=1.0.0"></script>
+
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+            var role=$("#role").val();
+            if(role=='admin'){
+                $("#addBtn").css("display","none");
+            }else {
+                $("#addBtn").css("display","block");
+            }
+
+            $.jgrid.defaults.styleUI = 'Bootstrap';
+
+            // Configuration for jqGrid Example 2
+            $("#table_list_2").jqGrid({
+                url:'getApplication',
+                datatype: "json",
+                height: 800,
+                autowidth: true,
+                shrinkToFit: true,
+//                rowNum: 20,
+//                rowList: [10, 20, 30],
+//                multiselect:true,
+                colNames: ['编号', '应聘日期', '简历编号', '职位编号', '状态','操作'],
+                colModel: [
+                    {
+                        name: 'applicationId',
+                        index: 'applicationId',
+                        editable: false,
+                        width: 60,
+                        sorttype: "int",
+                        search: true
+                    },
+                    {
+                        name: 'recentTime',
+                        index: 'recentTime',
+                        editable: true,
+                        width: 100,
+                        formatter:function(cellvalue, options, rowObject){
+                            //return cellvalue;
+                            //return timestampToTime()
+                            return dateFormat(cellvalue,'yyyy-MM-dd HH:mm:ss');
+                        }
+                    },
+                    {
+                        name: 'resumeId',
+                        index: 'resumeId',
+                        editable: true,
+                        width: 170,
+                        sortable: false
+                    },
+                    {
+                        name: 'positionId',
+                        index: 'positionId',
+                        editable: true,
+                        width: 50,
+                        sortable: false
+                    },
+                    {
+                        name: 'state',
+                        index: 'state',
+                        editable: true,
+                        width: 60,
+                        sortable: false,
+                        formatter:function(cellvalue, options, rowObject){
+                            if(cellvalue==0){
+                                return "待审核";
+                            }else if(cellvalue==1){
+                                return "已通过";
+                            }else if(cellvalue==2){
+                                return "已拒绝";
+                            }
+                        }
+                    },
+                    {
+                        name: 'applicationId',
+                        index: 'applicationId',
+                        editable: true,
+                        width: 60,
+                        sortable: false,
+                        formatter:function(cellvalue, options, rowObject){
+                            var str1="<a onclick='updateApplication("+cellvalue+",1)'>通过</a>";
+                            var str3="&nbsp;&nbsp;<a onclick='updateApplication("+cellvalue+",2)'>拒绝</a>";
+                            var str2="&nbsp;&nbsp;<a onclick='deletePosition("+cellvalue+")'>删除</a>";
+                            if(role=='admin'){
+                                return str2;
+                            }else {
+                                return str1+str3+str2;
+                            }
+                        }
+                    }
+                ],
+                pager: "#pager_list_2",
+                viewrecords: true,
+                caption: "应聘信息管理",
+                hidegrid: false,
+                loadonce : true
+            });
+
+            // Add selection
+            $("#table_list_2").setSelection(4, true);
+
+
+            // Setup buttons
+            $("#table_list_2").jqGrid('navGrid', '#pager_list_2', {
+                edit: false,
+                add: false,
+                del: false,
+                search: true
+            }, {
+                height: 200,
+                reloadAfterSubmit: true
+            });
+
+            // Add responsive to jqGrid
+            $(window).bind('resize', function () {
+                var width = $('.jqGrid_wrapper').width();
+                $('#table_list_2').setGridWidth(width);
+            });
+
+            $("#addBtn").click(function () {
+                $.ajax({
+                    url:"getCategory",
+                    type:"post",
+                    contentType:"application/json",
+                    dataType:"json",
+                    success: function (data) {
+                        var html="";
+                        for(var i=0;i<data.length;i++){
+                            html+="<option value='"+data[i].categoryId+"'>"+data[i].categoryName+"</option>";
+                        }
+                        $("#categoryId").html(html);
+                    }
+                })
+
+                $.ajax({
+                    url:"getDepartment",
+                    type:"post",
+                    contentType:"application/json",
+                    dataType:"json",
+                    success: function (data) {
+                        var html="";
+                        for(var i=0;i<data.length;i++){
+                            html+="<option value='"+data[i].departmentId+"'>"+data[i].departmentName+"</option>";
+                        }
+                        $("#departmentId").html(html);
+                    }
+                })
+
+                $("#title,#quantity,#requirement,#salaryUp,#salaryDown,#workCity,#positionId").val("");
+                $('#myModal').modal('show');
+            });
+        });
+
+        function addPosition() {
+            $.ajax({
+                url:"addApplication",
+                type:"post",
+                data:$("#addForm").serialize(),
+                success: function (data) {
+                    if(data=="true"){
+                        alert("添加成功");
+                        window.location.href="position_list.html";
+                        //$('#table_list_2').jqGrid('clearGridData');　　　　//先清空，再加载
+                        //$("#table_list_2").jqGrid().trigger("reloadGrid");
+                    }
+                }
+            })
+        }
+
+        function deletePosition(id) {
+            $.ajax({
+                url:"deleteApplication",
+                type:"post",
+                data:{"id":id},
+                success: function (data) {
+                    if(data=="true"){
+                        alert("删除成功");
+                        window.location.href="application_list.html";
+                    }
+                }
+            })
+        }
+
+        function updatePositions(id) {
+            $.ajax({
+                url:"getCategory",
+                type:"post",
+                contentType:"application/json",
+                dataType:"json",
+                success: function (data) {
+                    var html="";
+                    for(var i=0;i<data.length;i++){
+                        html+="<option value='"+data[i].categoryId+"'>"+data[i].categoryName+"</option>";
+                    }
+                    $("#categoryId").html(html);
+                }
+            })
+
+            $.ajax({
+                url:"getDepartment",
+                type:"post",
+                contentType:"application/json",
+                dataType:"json",
+                success: function (data) {
+                    var html="";
+                    for(var i=0;i<data.length;i++){
+                        html+="<option value='"+data[i].departmentId+"'>"+data[i].departmentName+"</option>";
+                    }
+                    $("#departmentId").html(html);
+                }
+            })
+
+            $.ajax({
+                url:"updatePosition",
+                type:"post",
+                data:{"id":id},
+                dataType:"json",
+                success: function (data) {
+                    $("#positionId").val(data.positionId);
+                    $("#title").val(data.title);
+                    $("#requirement").val(data.requirement);
+                    $("#quantity").val(data.quantity);
+                    $("#workCity").val(data.workCity);
+                    $("#salaryUp").val(data.salaryUp);
+                    $("#salaryDown").val(data.salaryDown);
+                    var categoryId=data.categoryId;
+                    var departmentId=data.departmentId;
+                    $("#categoryId option[value='"+categoryId+"']").attr("selected", true);
+                    $("#departmentId option[value='"+departmentId+"']").attr("selected", true);
+                }
+            })
+
+
+            $('#myModal').modal('show');
+        }
+
+        function timestampToTime(timestamp) {
+            //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+            var date = new Date(timestamp * 1000);
+            Y = date.getFullYear() + '-';
+            M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            D = date.getDate() + ' ';
+            h = date.getHours() + ':';
+            m = date.getMinutes() + ':';
+            s = date.getSeconds();
+            return Y+M+D+h+m+s;
+        }
+        
+        function dateFormat(date,format) {
+            date = new Date(date);
+
+            var o = {
+                'M+' : date.getMonth() + 1, //month
+                'd+' : date.getDate(), //day
+                'H+' : date.getHours(), //hour
+                'm+' : date.getMinutes(), //minute
+                's+' : date.getSeconds(), //second
+                'S' : date.getMilliseconds() //millisecond
+            };
+
+            if (/(y+)/.test(format))
+                format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+
+            for (var k in o)
+                if (new RegExp('(' + k + ')').test(format))
+                    format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
+
+            return format;
+        }
+
+        function updateApplication(id,state) {
+            $.ajax({
+                url:"updateApplication",
+                type:"post",
+                data:{"id":id,"state":state},
+                success: function (data) {
+                    if(data=="true"){
+                        alert("操作成功");
+                        window.location.href="application_list.html";
+                    }
+                }
+            })
+        }
+    </script>
+
+</body>
+
+</html>

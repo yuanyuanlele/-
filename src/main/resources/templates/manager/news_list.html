@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>ZJ招聘后台管理系统 - 资讯信息</title>
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/ss/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <!-- jqgrid-->
+    <link href="/css/plugins/jqgrid/ui.jqgrid.css?0820" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css?v=4.1.0" rel="stylesheet">
+
+    <style>
+        /* Additional style to fix warning dialog position */
+
+        #alertmod_table_list_2 {
+            top: 900px !important;
+        }
+    </style>
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h4>资讯信息管理</h4>
+                        <button id="addBtn" class="btn btn-info" href="">发布资讯</button>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="jqGrid_wrapper">
+                            <table id="table_list_2"></table>
+                            <div id="pager_list_2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">×
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        发布资讯
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="addForm" enctype="multipart/form-data">
+                        <input type="hidden" id="id" name="sid"/>
+                        <div class="form-group">
+                            <label for="title">图片</label>
+                            <input type="file" name="icon" id="icon" class="form-control" id="icon">
+                        </div>
+                        <div class="form-group">
+                            <label for="title">标题</label>
+                            <input type="text" name="title" id="title" class="form-control" id="title">
+                        </div>
+                        <div class="form-group">
+                            <label for="summary">摘要</label>
+                            <input type="text" name="summary" id="summary" class="form-control" id="summary">
+                        </div>
+                        <div class="form-group">
+                            <label>内容</label>
+                            <textarea class="form-control" id="content" name="content"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addNotice()">
+                        提交更改
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <input type="hidden" id="role" th:value="${session.role}"/>
+
+    <!-- 全局js -->
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+
+
+
+    <!-- Peity -->
+    <script src="/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- jqGrid -->
+    <script src="/js/plugins/jqgrid/i18n/grid.locale-cn.js?0820"></script>
+    <script src="/js/plugins/jqgrid/jquery.jqGrid.min.js?0820"></script>
+
+    <!-- 自定义js -->
+    <script src="/js/content.js?v=1.0.0"></script>
+
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+            var role=$("#role").val();
+
+            $.jgrid.defaults.styleUI = 'Bootstrap';
+
+            // Configuration for jqGrid Example 2
+            $("#table_list_2").jqGrid({
+                url:'getNews',
+                datatype: "json",
+                height: 800,
+                autowidth: true,
+                shrinkToFit: true,
+//                rowNum: 20,
+//                rowList: [10, 20, 30],
+//                multiselect:true,
+                colNames: ['编号','图片', '标题', '摘要', '发布日期', '发布人','操作'],
+                colModel: [
+                    {
+                        name: 'id',
+                        index: 'id',
+                        editable: false,
+                        width: 60,
+                        sorttype: "int",
+                        search: true
+                    },
+                    {
+                        name: 'icon',
+                        index: 'icon',
+                        editable: true,
+                        width: 60,
+                        sortable: false,
+                        formatter:function(cellvalue, options, rowObject){
+                            var str1="<img src='"+cellvalue+"' style='width: 80px;height: 80px;'/>";
+                            return str1;
+                        }
+                    },
+                    {
+                        name: 'title',
+                        index: 'title',
+                        editable: true,
+                        width: 100
+                    },
+                    {
+                        name: 'summary',
+                        index: 'summary',
+                        editable: true,
+                        width: 100
+                    },
+                    {
+                        name: 'addDate',
+                        index: 'addDate',
+                        editable: true,
+                        width: 80,
+                        sortable: false,
+                    },
+                    {
+                        name: 'addUser',
+                        index: 'addUser',
+                        editable: true,
+                        width: 80,
+                        sortable: false,
+                    },
+                    {
+                        name: 'id',
+                        index: 'id',
+                        editable: true,
+                        width: 60,
+                        sortable: false,
+                        formatter:function(cellvalue, options, rowObject){
+                            var str1="<a onclick='updateNotice("+cellvalue+")'>编辑</a>";
+                            var str2="&nbsp;&nbsp;<a onclick='deleteNotice("+cellvalue+")'>删除</a>";
+                            if(role=='admin'){
+                                return str2;
+                            }else {
+                                return str1+str2;
+                            }
+                        }
+                    }
+                ],
+                pager: "#pager_list_2",
+                viewrecords: true,
+                caption: "信息管理",
+                hidegrid: false,
+                loadonce : true
+            });
+
+            // Add selection
+            $("#table_list_2").setSelection(4, true);
+
+
+            // Setup buttons
+            $("#table_list_2").jqGrid('navGrid', '#pager_list_2', {
+                edit: false,
+                add: false,
+                del: false,
+                search: true
+            }, {
+                height: 200,
+                reloadAfterSubmit: true
+            });
+
+            // Add responsive to jqGrid
+            $(window).bind('resize', function () {
+                var width = $('.jqGrid_wrapper').width();
+                $('#table_list_2').setGridWidth(width);
+            });
+
+            $("#addBtn").click(function () {
+                $("#title,#summary,#content,#id").val("");
+                $('#myModal').modal('show');
+            });
+        });
+
+        function addNotice() {
+            var files=document.getElementById("icon").files;
+            var title=document.getElementById("title").value;
+            var summary=document.getElementById("summary").value;
+            var content=document.getElementById("content").value;
+            var sid=document.getElementById("id").value;
+            var formData = new FormData();
+            formData.append('icon', files[0]);
+            formData.append("title",title);
+            formData.append("summary",summary);
+            formData.append("content",content);
+            formData.append("sid",sid);
+            $.ajax({
+                async: false,
+                url:"addNews",
+                type:"post",
+                data:formData,
+                mimeType: "multipart/form-data",
+                contentType: false,
+                cache: false,
+                processData: false,
+                beforeSend:function(){
+                    //layer.close(layer.index);
+                    //$('.loadingBox').attr('data-show', 1);
+                },
+                success: function (data) {
+                    if(data=="true"){
+                        alert("添加成功");
+                        window.location.href="news_list.html";
+                        //$('#table_list_2').jqGrid('clearGridData');　　　　//先清空，再加载
+                        //$("#table_list_2").jqGrid().trigger("reloadGrid");
+                    }
+                }
+            })
+        }
+
+        function deleteNotice(id) {
+            $.ajax({
+                url:"deleteNews",
+                type:"post",
+                data:{"id":id},
+                success: function (data) {
+                    if(data=="true"){
+                        alert("删除成功");
+                        window.location.href="news_list.html";
+                    }
+                }
+            })
+        }
+
+        function updateNotice(id) {
+            $.ajax({
+                url:"updateNews",
+                type:"post",
+                data:{"id":id},
+                dataType:"json",
+                success: function (data) {
+                    $("#id").val(data.id);
+                    $("#title").val(data.title);
+                    $("#summary").val(data.summary);
+                    $("#content").val(data.content);
+                }
+            })
+
+
+            $('#myModal').modal('show');
+        }
+
+    </script>
+
+</body>
+
+</html>

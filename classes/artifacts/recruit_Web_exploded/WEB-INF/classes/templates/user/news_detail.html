@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>资讯详情</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <script src="/js/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+            integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/bootstrap.css"/>
+    <script src="/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../icon/iconfont.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/home.css"/>
+    <link rel="stylesheet" href="/css/job-content.css"/>
+    <script src="/js/vue.min.js"></script>
+    <script src="/js/main.js"></script>
+</head>
+<body>
+<div class="wrap">
+    <div class="header">
+
+        <div class="container row" id="header-vue-bind-div">
+            <a class="logo"></a>
+            <ul class="nav col-lg-8">
+                <!--<li class="address">全国</li>-->
+                <li class="nav_li"><a class="nav_item" href="/">首页</a></li>
+                <li class="nav_li"><a class="nav_item" href="/searchlist?keyword=">职位搜索</a></li>
+                <li class="nav_li"><a class="nav_item" href="/contact">联系客服</a></li>
+                <li class="nav_li current"><a class="nav_item" href="/news">资讯</a></li>
+                <li class="nav_li"><a class="nav_item" href="/user/info?type=person">我的简历</a></li>
+            </ul>
+
+            <ul class="clear_fix col-lg-2  " v-if="type===null">
+                <li><a class="clear_fix_item login" href="/user/login">登录</a></li>
+                <li><a class="clear_fix_item register" href="/register">注册</a></li>
+            </ul>
+
+            <ul class="clear_fix col-lg-2 " v-if="type==='user'">
+                <li><img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=3803332007,2672307128&fm=58" alt=""
+                         class="img-circle" style="width: 48px;height: 48px"></li>
+                <li>
+                    <div class="dropdown">
+                        <a id="dLabel" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <h6>{{person.user.nickname}}</h6>
+                            <span class="caret"></span>
+                        </a>
+
+
+                        <ul class="dropdown-menu" aria-labelledby="dLabel">
+                            <li><a href="/user/info">个人中心</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/user/logout">注销</a></li>
+                        </ul>
+                    </div>
+
+                </li>
+            </ul>
+            <ul class="clear_fix col-lg-2 " v-if="type==='hr'">
+                <li><img src="https://ss2.baidu.com/6ONYsjip0QIZ8tyhnq/it/u=3803332007,2672307128&fm=58" alt=""
+                         class="img-circle" style="width: 48px;height: 48px"></li>
+                <li>
+                    <div class="dropdown">
+                        <a data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <h6>{{person.hr.hrName}}</h6>
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dLabel">
+                            <li><a href="user/usercenter">个人中心</a></li>
+                            <li><a href="user/usercenter">管理中心</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="user/logout">注销</a></li>
+                        </ul>
+                    </div>
+
+                </li>
+            </ul>
+
+        </div>
+    </div>
+    <script>
+        var headervue = new Vue({
+            el: '#header-vue-bind-div',
+
+            data: {
+                type: null,
+                person: {
+                    user: null,
+                    hr: null
+                }
+
+            }
+        });
+    </script>
+    <hr>
+    <!--<div class="search-content  container">
+
+        <div class="search-box text-center ">
+            <form class="text-center row" name="search_form" action="/searchlist" method="get">
+                <input class="search-input col-md-7 col-md-offset-1" id="search-input" name="keyword" type="text"
+                       placeholder="搜索职位名称关键字">
+                <input class="col-md-2" type="submit" id="search-button" value="搜索"/>
+            </form>
+
+        </div>
+        <div class="hot-search ">
+            <dl class="row">
+                <div class="col-sm-1"></div>
+                <dt class="col-sm-1" style="padding-left: 0px;margin-left: 0px">热门搜索：</dt>
+                <dd class="col-sm-1" style="margin-left: -15px;"><a href="/searchlist?keyword=Java工程师">Java工程师</a></dd>
+                <dd style="width: 6%;margin-left: 15px;"><a href="/searchlist?keyword=数据挖掘">数据挖掘</a></dd>
+                <dd style="width: 6%;margin-left: 15px;"><a href="/searchlist?keyword=后台开发">后台开发</a></dd>
+                <dd style="width: 4%;margin-left: 15px;"><a href="/searchlist?keyword=Java">Java</a></dd>
+                <dd style="width: 4%;margin-left: 15px;"><a href="/searchlist?keyword=C++">C++</a></dd>
+                <dd style="width: 4%;margin-left: 15px;"><a href="/searchlist?keyword=Python">Python</a></dd>
+                <dd style="width: 4%;margin-left: 15px;"><a href="/searchlist?keyword=.NET工程师">.NET</a></dd>
+                <dd style="width: 4%;margin-left: 15px;"><a href="/searchlist?keyword=PHP">PHP</a></dd>
+            </dl>
+        </div>
+    </div>-->
+    <div class="job-nav container">
+        <div class="col-sm-12">
+            <div id="wrap">
+                <div id="main">
+                    <div class="detail inner">
+                        <div class="detail-main" style="width: 90.3%;">
+                            <div class="detail-content">
+                                <h1 class="title" th:text="${news.title}">拿不到年终奖就跳槽？80后或成最硬核职场人 | 2018年终奖调查报告</h1>
+                                <div class="info">
+                                    <p class="author">
+                                        <span th:text="${news.addUser}">BOSS直聘</span><em>·</em>
+                                        <span class="time" th:text="${#calendars.format(news.addDate,'yyyy-MM-dd')}">2019-01-31</span>
+                                    </p>
+                                    <p class="tags">数据报告</p>
+                                </div>
+                                <div class="content" th:text="${news.content}" style="text-indent: 20px;">
+                                    <p style="margin-bottom: 5px; margin-top: 5px;">江西一集团堆了一座5亿现金墙，为公司1万员工发放人均5万元的年终奖；</p>
+                                    <p style="margin-bottom: 5px; margin-top: 5px;">浙江温州一家汽车部件公司，奖励100名优秀员工一人一台价值11万元新车。</p>
+                                    <p style="margin-bottom: 5px; margin-top: 5px;">有种奖，叫做别人的年终奖。西湖的水，我的泪！</p>
+                                    <p style="margin-bottom: 5px; margin-top: 5px;">辛辛苦苦搬砖一年，就盼着年终奖这块大饼，今年你吃到没？</p>
+                                    <p>
+                                        前不久，BOSS直聘与《疯狂的外星人》特别策划发起了“2018年终奖大调查”，收到1367位职场人的反馈，经过对样本的分析，最终得出这份《疯狂的年终奖——2018职场人年终奖调查报告》，也得到一些有意思的发现——</p>
+                                    <p><br/></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

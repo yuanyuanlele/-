@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>ZJ招聘后台管理系统 - 简历信息</title>
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/ss/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <!-- jqgrid-->
+    <link href="/css/plugins/jqgrid/ui.jqgrid.css?0820" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css?v=4.1.0" rel="stylesheet">
+
+    <style>
+        /* Additional style to fix warning dialog position */
+
+        #alertmod_table_list_2 {
+            top: 900px !important;
+        }
+    </style>
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h4>简历信息表</h4>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="jqGrid_wrapper">
+                            <table id="table_list_2"></table>
+                            <div id="pager_list_2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+
+
+
+    <!-- Peity -->
+    <script src="/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- jqGrid -->
+    <script src="/js/plugins/jqgrid/i18n/grid.locale-cn.js?0820"></script>
+    <script src="/js/plugins/jqgrid/jquery.jqGrid.min.js?0820"></script>
+
+    <!-- 自定义js -->
+    <script src="/js/content.js?v=1.0.0"></script>
+
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+            $.jgrid.defaults.styleUI = 'Bootstrap';
+
+            // Configuration for jqGrid Example 2
+            $("#table_list_2").jqGrid({
+                url:'getResume',
+                datatype: "json",
+                height: 800,
+                autowidth: true,
+                shrinkToFit: true,
+//                rowNum: 20,
+//                rowList: [10, 20, 30],
+//                multiselect:true,
+                colNames: ['简历Id', '姓名', '手机号', '邮箱', /*'性别',*/ '出生日期','省份','城市','学历','院校','专业','能力','状态','操作'],
+                colModel: [
+                    {
+                        name: 'resumeId',
+                        index: 'resumeId',
+                        editable: false,
+                        width: 40,
+                        sorttype: "int",
+                        search: true
+                    },
+                    {
+                        name: 'userEntity.name',
+                        index: 'userEntity.name',
+                        editable: true,
+                        width: 60
+                    },
+                    {
+                        name: 'userEntity.mobile',
+                        index: 'userEntity.mobile',
+                        editable: true,
+                        width: 100,
+                        sortable: false
+                    },
+                    {
+                        name: 'userEntity.email',
+                        index: 'userEntity.email',
+                        editable: true,
+                        width: 100,
+                        sortable: false
+                    },
+                    /*{
+                        name: 'userEntity.sex',
+                        index: 'userEntity.sex',
+                        editable: true,
+                        width: 60,
+                        sortable: false
+                    },*/
+                    {
+                        name: 'userEntity.birthYear',
+                        index: 'userEntity.birthYear',
+                        editable: true,
+                        width: 60,
+                        sortable: false
+                    },
+                    {
+                        name: 'userEntity.province',
+                        index: 'userEntity.province',
+                        editable: true,
+                        width: 80,
+                        sortable: false
+                    },
+                    {
+                        name: 'userEntity.city',
+                        index: 'userEntity.city',
+                        editable: true,
+                        width: 80,
+                        sortable: false
+                    },
+                    {
+                        name: 'userEntity.eduDegree',
+                        index: 'userEntity.eduDegree',
+                        editable: true,
+                        width: 80,
+                        sortable: false
+                    },
+                    {
+                        name: 'userEntity.graduation',
+                        index: 'userEntity.graduation',
+                        editable: true,
+                        width: 80,
+                        sortable: false
+                    },
+                    {
+                        name: 'userEntity.major',
+                        index: 'userEntity.major',
+                        editable: true,
+                        width: 80,
+                        sortable: false
+                    },
+                    {
+                        name: 'ability',
+                        index: 'ability',
+                        editable: true,
+                        width: 80,
+                        sortable: false
+                    },
+                    {
+                        name: 'state',
+                        index: 'state',
+                        editable: true,
+                        width: 60,
+                        sortable: false,
+                        formatter:function(cellvalue, options, rowObject){
+                            if(cellvalue=='0'){
+                                return "待审核";
+                            }else if(cellvalue=='1'){
+                                return "已通过";
+                            }else if(cellvalue=='2'){
+                                return "已拒绝";
+                            }
+                        }
+                    },
+                    {
+                        name: 'resumeId',
+                        index: 'resumeId',
+                        editable: true,
+                        width: 80,
+                        sortable: false,
+                        formatter:function(cellvalue, options, rowObject){
+                            var str1="<a onclick='updateResume("+cellvalue+",1)'>通过</a>";
+                            var str3="&nbsp;&nbsp;<a onclick='updateResume("+cellvalue+",2)'>拒绝</a>";
+                            var str2="&nbsp;&nbsp;<a onclick='deleteResume("+cellvalue+")'>删除</a>";
+                            // return str1+str3+str2;
+                            return str2;
+                        }
+                    }
+                ],
+                pager: "#pager_list_2",
+                viewrecords: true,
+                caption: "HR管理",
+                hidegrid: false,
+                loadonce : true
+            });
+
+            // Add selection
+            $("#table_list_2").setSelection(4, true);
+
+
+            // Setup buttons
+            $("#table_list_2").jqGrid('navGrid', '#pager_list_2', {
+                edit: false,
+                add: false,
+                del: false,
+                search: true
+            }, {
+                height: 200,
+                reloadAfterSubmit: true
+            });
+
+            // Add responsive to jqGrid
+            $(window).bind('resize', function () {
+                var width = $('.jqGrid_wrapper').width();
+                $('#table_list_2').setGridWidth(width);
+            });
+        });
+
+        function deleteResume(id) {
+            $.ajax({
+                url:"deleteResume",
+                type:"post",
+                data:{"id":id},
+                success: function (data) {
+                    if(data=="true"){
+                        alert("删除成功");
+                        window.location.href="resume_list.html";
+                    }
+                }
+            })
+        }
+
+        function updateResume(id,state) {
+           $.ajax({
+                url:"updateResume",
+                type:"post",
+                data:{"id":id,"state":state},
+                success: function (data) {
+                    if(data=="true"){
+                        alert("操作成功");
+                        window.location.href="resume_list.html";
+                    }
+                }
+            })
+        }
+    </script>
+
+</body>
+
+</html>
